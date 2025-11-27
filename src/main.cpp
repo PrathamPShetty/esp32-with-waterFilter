@@ -1,46 +1,42 @@
 #include <Arduino.h>
+#include "DSHelper.h"
 
-const int flowSensorPin = 14;  // Yellow wire to GPIO14
-volatile unsigned long pulseCount = 0;
+DSHelper ds(4);  // GPIO 4
 
-unsigned long oldTime = 0;
-
-void IRAM_ATTR pulseCounter() {
-  pulseCount++;
-}
+DeviceAddress sensor1, sensor2;
 
 void setup() {
   Serial.begin(115200);
 
-  pinMode(flowSensorPin, INPUT_PULLUP);
+  ds.begin();
 
-  // Attach interrupt to count pulses
-  attachInterrupt(digitalPinToInterrupt(flowSensorPin), pulseCounter, RISING);
+  if (!ds.getSensorAddress(0, sensor1)) Serial.println("Sensor 1 not found!");
+  if (!ds.getSensorAddress(1, sensor2)) Serial.println("Sensor 2 not found!");
 
-  Serial.println("Water Flow Sensor Started...");
+  Serial.print("Sensor 1 Address: ");
+  ds.printAddress(sensor1);
+
+  Serial.print("Sensor 2 Address: ");
+  ds.printAddress(sensor2);
 }
 
 void loop() {
-  if (millis() - oldTime > 1000) { // Update every 1 sec
-    detachInterrupt(digitalPinToInterrupt(flowSensorPin));
+  ds.requestTemps();
 
-    float frequency = pulseCount; // pulses per second
-    float flowRate = frequency / 7.5; // L/min
+  float t1 = ds.readTemp(sensor1);
+  float t2 = ds.readTemp(sensor2);
 
-    float litersPerSecond = flowRate / 60.0;
-    static float totalLiters = 0;
+  Serial.print("Sensor 1: ");
+  Serial.print(t1);
+  Serial.println(" °C");
 
-    totalLiters += litersPerSecond;
+  Serial.print("Sensor 2: ");
+  Serial.print(t2);
+  Serial.println(" °C");
 
-    Serial.print("Flow Rate: ");
-    Serial.print(flowRate);
-    Serial.print(" L/min   |   Total: ");
-    Serial.print(totalLiters);
-    Serial.println(" L");
-
-    pulseCount = 0;
-    oldTime = millis();
-
-    attachInterrupt(digitalPinToInterrupt(flowSensorPin), pulseCounter, RISING);
-  }
+  Serial.println("----------------------");
+  delay(2000);
 }
+
+
+
