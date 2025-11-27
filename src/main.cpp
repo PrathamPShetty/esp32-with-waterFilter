@@ -6,6 +6,8 @@
 #include "tds_helper.h"
 #include "flow_helper.h"
 #include "float_helper.h"
+#include "display_helper.h"
+#include "current_helper.h"
 
 
 const char* ssid = "PRATHAM";
@@ -24,6 +26,9 @@ void setup() {
   initTDS();
   initFlowSensor(14);
   initFloatSwitch(5); 
+  initDisplay();
+  showStartingScreen();
+  initCurrentSensor();
 }
 
 void loop() {
@@ -33,6 +38,7 @@ void loop() {
   Serial.print("Temperature: ");
   Serial.print(tempC);
   Serial.println(" °C");
+
 
   Serial.print("Temperature: ");
   Serial.print(tempF);
@@ -57,7 +63,24 @@ void loop() {
     waterlevelMessage = "LOW";
   }
 
+    float currentA = readCurrent();
+     Serial.print("Current: ");
+  Serial.print(currentA, 3);
+  Serial.println(" A");
+
   Serial.println("--------------------------");
+
+  showTemperature(tempC, tempF);
+  delay(2000);
+
+  showTDS(tdsValue);
+  delay(2000);
+
+  showFlow(flowRate, total);
+  delay(2000);
+
+  showWaterLevel(waterlevelMessage);
+  delay(2000);
 
   // SEND DATA
   if (isWiFiConnected()) {
@@ -68,7 +91,8 @@ void loop() {
                  + "&tds=" + String(tdsValue)
                  + "&flowRate=" + String(flowRate)
                  + "&totalLiters=" + String(total)
-                 + "&waterlevel=" + waterlevelMessage;
+                 + "&waterlevel=" + waterlevelMessage
+                 + "&currentA=" + String(currentA);
 
     http.begin(url);
     int code = http.GET();

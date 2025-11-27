@@ -11,6 +11,7 @@ let tds = 0;
 let flowRate = 0;
 let totalLiters = 0;
 let waterlevelMessage = "";
+let currentA = 0;
 
 app.get("/temp", (req, res) => {
   tempC = req.query.tempC;
@@ -18,13 +19,17 @@ app.get("/temp", (req, res) => {
   tds = req.query.tds;
   flowRate = req.query.flowRate;
   totalLiters = req.query.totalLiters;
-  waterlevelMessage = req.query.waterlevelMessage;
+  waterlevelMessage = req.query.waterlevel;
+  currentA = req.query.currentA;
 
   console.log("📥 Temperature Received:");
   console.log("Temp C:", tempC);
   console.log("Temp F:", tempF);
   console.log("TDS Value:", tds);
   console.log("Flow Rate:", flowRate);
+  console.log("Total Liters:", totalLiters);
+  console.log("Water Level Message:", waterlevelMessage);
+  console.log("Current A:", currentA);
 
   res.json({
     status: "success",
@@ -41,6 +46,7 @@ app.get("/data", (req, res) => {
     flowRate: flowRate,
     totalLiters: totalLiters,
     waterlevelMessage: waterlevelMessage,
+    currentA: currentA,
   });
 });
 

@@ -8,8 +8,3 @@ bool isWaterLevelLow();   // Returns true if float is DOWN (water level low)
 #endif
 
 
-// | Sensor           | ESP32 Pin     | Notes                                                                   |
-// | ---------------- | ------------- | ----------------------------------------------------------------------- |
-// | **Float Switch** | GPIO5         | Use `INPUT_PULLUP`                                                      |
-// | **3.3V / 5V**    | VCC           | Power supply for sensors (check each sensor’s rating)                   |
-// | **GND**          | GND           | Common ground for all sensors                                           |
