@@ -3,19 +3,27 @@
 
 #include "wifi_helper.h"
 #include "DSHelper.h"
+#include "tds_helper.h"
+#include "flow_helper.h"
+#include "float_helper.h"
 
-// ---- WiFi ----
+
 const char* ssid = "PRATHAM";
 const char* password = "pratham99";
 
-// ---- API URL ----
-String serverURL = "http://192.168.31.255:3000/temp";
+
+String serverURL = "http://192.168.31.165:3000/temp";
+
+String waterlevelMessage = ""; 
 
 void setup() {
   Serial.begin(115200);
 
   connectWiFi(ssid, password);
   initSensor();
+  initTDS();
+  initFlowSensor(14);
+  initFloatSwitch(5); 
 }
 
 void loop() {
@@ -30,13 +38,37 @@ void loop() {
   Serial.print(tempF);
   Serial.println(" °F");
 
+  float tdsValue = readTDS();
+  Serial.print("TDS Value: ");
+  Serial.print(tdsValue);
+  Serial.println(" ppm");
+
+  float flowRate = getFlowRate();
+  float total = getTotalLiters();
+
+  Serial.print("Flow Rate: "); Serial.print(flowRate); Serial.print(" L/min   |   Total: ");
+  Serial.print(total); Serial.println(" L");
+
+  if (isWaterLevelHigh()) {
+    Serial.println("🚰 Water level reached (Float Switch CLOSED)");
+    waterlevelMessage = "HIGH";
+  } else {
+    Serial.println("⬇️ Water level low (Float Switch OPEN)");
+    waterlevelMessage = "LOW";
+  }
+
   Serial.println("--------------------------");
 
   // SEND DATA
   if (isWiFiConnected()) {
     HTTPClient http;
 
-    String url = serverURL + "?tempC=" + String(tempC) + "&tempF=" + String(tempF);
+    String url = serverURL + "?tempC=" + String(tempC)
+                 + "&tempF=" + String(tempF)
+                 + "&tds=" + String(tdsValue)
+                 + "&flowRate=" + String(flowRate)
+                 + "&totalLiters=" + String(total)
+                 + "&waterlevel=" + waterlevelMessage;
 
     http.begin(url);
     int code = http.GET();
