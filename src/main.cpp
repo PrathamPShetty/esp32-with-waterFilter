@@ -1,42 +1,56 @@
 #include <Arduino.h>
+#include <HTTPClient.h>
+
+#include "wifi_helper.h"
 #include "DSHelper.h"
 
-DSHelper ds(4);  // GPIO 4
+// ---- WiFi ----
+const char* ssid = "PRATHAM";
+const char* password = "pratham99";
 
-DeviceAddress sensor1, sensor2;
+// ---- API URL ----
+String serverURL = "http://192.168.31.255:3000/temp";
 
 void setup() {
   Serial.begin(115200);
 
-  ds.begin();
-
-  if (!ds.getSensorAddress(0, sensor1)) Serial.println("Sensor 1 not found!");
-  if (!ds.getSensorAddress(1, sensor2)) Serial.println("Sensor 2 not found!");
-
-  Serial.print("Sensor 1 Address: ");
-  ds.printAddress(sensor1);
-
-  Serial.print("Sensor 2 Address: ");
-  ds.printAddress(sensor2);
+  connectWiFi(ssid, password);
+  initSensor();
 }
 
 void loop() {
-  ds.requestTemps();
+  float tempC = readTemperatureC();
+  float tempF = readTemperatureF();
 
-  float t1 = ds.readTemp(sensor1);
-  float t2 = ds.readTemp(sensor2);
-
-  Serial.print("Sensor 1: ");
-  Serial.print(t1);
+  Serial.print("Temperature: ");
+  Serial.print(tempC);
   Serial.println(" °C");
 
-  Serial.print("Sensor 2: ");
-  Serial.print(t2);
-  Serial.println(" °C");
+  Serial.print("Temperature: ");
+  Serial.print(tempF);
+  Serial.println(" °F");
 
-  Serial.println("----------------------");
-  delay(2000);
+  Serial.println("--------------------------");
+
+  // SEND DATA
+  if (isWiFiConnected()) {
+    HTTPClient http;
+
+    String url = serverURL + "?tempC=" + String(tempC) + "&tempF=" + String(tempF);
+
+    http.begin(url);
+    int code = http.GET();
+
+    Serial.print("HTTP Response Code: ");
+    Serial.println(code);
+
+    if (code > 0)
+      Serial.println(http.getString());
+
+    http.end();
+  } else {
+    Serial.println("⚠ WiFi Not Connected!");
+  }
+
+  delay(5000);
 }
-
-
-
