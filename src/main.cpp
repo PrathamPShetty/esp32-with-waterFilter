@@ -14,7 +14,7 @@ const char* ssid = "PRATHAM";
 const char* password = "pratham99";
 
 
-String serverURL = "http://192.168.31.165:3000/temp";
+String serverURL = "https://major-project-backend.envisionsit.com/temp";
 
 String waterlevelMessage = ""; 
 
