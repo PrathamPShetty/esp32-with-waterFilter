@@ -13,13 +13,20 @@
 const char* ssid = "PRATHAM";
 const char* password = "pratham99";
 
+const int relayPin = 26;
+
 
 String serverURL = "https://major-project-backend.envisionsit.com/temp";
 
 String waterlevelMessage = ""; 
 
+int relayState = HIGH;
+
 void setup() {
   Serial.begin(115200);
+  pinMode(relayPin,OUTPUT);
+
+  digitalWrite(relayPin,relayState);
 
   connectWiFi(ssid, password);
   initSensor();
@@ -57,11 +64,15 @@ void loop() {
 
   if (isWaterLevelHigh()) {
     Serial.println("🚰 Water level reached (Float Switch CLOSED)");
+    relayState=HIGH;
     waterlevelMessage = "HIGH";
   } else {
     Serial.println("⬇️ Water level low (Float Switch OPEN)");
+    relayState=LOW;
     waterlevelMessage = "LOW";
   }
+
+  digitalWrite(relayPin,relayState);
 
     float currentA = readCurrent();
      Serial.print("Current: ");
@@ -74,12 +85,6 @@ void loop() {
   delay(2000);
 
   showTDS(tdsValue);
-  delay(2000);
-
-  showFlow(flowRate, total);
-  delay(2000);
-
-  showWaterLevel(waterlevelMessage);
   delay(2000);
 
   // SEND DATA
@@ -108,5 +113,5 @@ void loop() {
     Serial.println("⚠ WiFi Not Connected!");
   }
 
-  delay(5000);
+  delay(2000);
 }
