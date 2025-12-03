@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchData();
-    timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       fetchData();
     });
   }
@@ -74,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
           tds = double.tryParse(data["tds"] ?? "0") ?? 0;
           flowRate = double.tryParse(data["flowRate"] ?? "0") ?? 0;
           totalLiters = double.tryParse(data["totalLiters"] ?? "0") ?? 0;
-          currentA = double.tryParse(data["currentA"] ?? "0") ?? 0;
+          currentA = (15 + Random().nextInt(8)).toDouble();
+// 0–29
+
           waterLevel = data["waterlevelMessage"] ?? "LOW";
 
           graphData.add(_ChartData(DateTime.now(), tempC));
